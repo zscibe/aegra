@@ -1,7 +1,7 @@
 {
   "graphs": {
-    "chat":"../graphs/chat/graph/graph.py:app",
-    "chart_note":"../graphs/chartnote/src/agent/graph.py:graph",
-    "intake_notes":"../graphs/intakenotes/src/agent/graph.py:graph"
+    "chat":"/graphs/chat/graph/graph.py:app",
+    "chart_note":"/graphs/chartnote/src/agent/graph.py:graph",
+    "intake_notes":"/graphs/intake_notes/src/graph.py:graph"
   }
 }

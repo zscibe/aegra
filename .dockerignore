@@ -20,7 +20,7 @@ node_modules/
 tests/
 e2e/
 docs/
-
+.venv/
 # IDE
 .vscode/
 .idea/

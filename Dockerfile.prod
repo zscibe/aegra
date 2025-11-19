@@ -1,0 +1,46 @@
+# ============================================================================
+# Aegra Production Dockerfile
+# ============================================================================
+# Self-hosted LangGraph Platform for production deployment
+# Optimized for Google Cloud Run
+
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv package manager for faster installs
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.cargo/bin:$PATH"
+
+# Copy dependency files first (for layer caching)
+COPY pyproject.toml README.md ./
+COPY src/ ./src/
+
+# Install Python dependencies using uv
+RUN uv pip install --system -e .
+
+# Set environment variables for production
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8080
+ENV ENV_MODE=PRODUCTION
+ENV AEGRA_HOST=0.0.0.0
+
+# Expose port (Cloud Run will set PORT env var)
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# Run database migrations and start server
+# Note: Migrations should ideally run separately, but included for simplicity
+CMD ["sh", "-c", "alembic upgrade head && uvicorn src.agent_server.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
